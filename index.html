@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>벽돌깨기
-
-    </title>
+    <title>벽돌깨기</title>
 <style>
 body {
     margin: 0;
@@ -43,7 +41,7 @@ canvas {
     font-weight: bold;
     position: absolute;
     top: 10px;
-    left: 10px;
+    left: 60px;
     padding: 8px 12px;
     background: rgba(0, 0, 0, 0.6);
     border-radius: 5px;
@@ -54,94 +52,99 @@ canvas {
 <body>
     <h1>벽돌깨기 게임</h1>
     <canvas width="500" height="350"></canvas>
-<script>
-    const canvas = document.querySelector("canvas");
-    const ctx = canvas.getContext("2d");
-
-    let x = canvas.width/2;
-    let y = canvas.height/2;
-    let radius = 10
-    let dx = 2;
-    let dy = -2
-    let barHeight = 10;
-    let barWidth = 70;
-    let barX = (canvas.width - barWidth)/2;
-    let rightflag = false;
-    let leftflag = false;
-
-    let brickRow = 5;
-    let brickColumn = 7;
-    let brickWidth = 53;
-    let brickHeight = 15;
-    let brickPadding = 8;
-    let brickOffsetTop = 30;
-    let brickOffsetLeft = 30;
-
-
-    let score = 0;
-
-    document.addEventListener("keydown",e=>{
-        if(e.key == "ArrowRight"){
-            rightflag = true;
-        }else if(e.key = "ArrowLeft"){
-            leftflag = true;
+    <script>
+        const canvas = document.querySelector("canvas");
+        const ctx = canvas.getContext("2d");
+    
+        let x = canvas.width / 2;
+        let y = canvas.height / 2;
+        let radius = 10;
+        let dx = 2;
+        let dy = -2;
+        let barHeight = 10;
+        let barWidth = 70;
+        let barX = (canvas.width - barWidth) / 2;
+        let rightflag = false;
+        let leftflag = false;
+    
+        let brickRow = 5;
+        let brickColumn = 7;
+        let brickWidth = 53;
+        let brickHeight = 15;
+        let brickPadding = 8;
+        let brickOffsetTop = 30;
+        let brickOffsetLeft = 30;
+    
+        let score = 0;
+        let gameInterval;  
+        let countdown = 3;  
+    
+        document.addEventListener("keydown", e => {
+            if (e.key === "ArrowRight") {
+                rightflag = true;
+            } else if (e.key === "ArrowLeft") {
+                leftflag = true;
+            }
+        });
+    
+        document.addEventListener("keyup", e => {
+            if (e.key === "ArrowRight") {
+                rightflag = false;
+            } else if (e.key === "ArrowLeft") {
+                leftflag = false;
+            }
+        });
+    
+        function drawScore() {
+            ctx.font = "16px Arial";
+            ctx.fillStyle = "#fff";
+            ctx.fillText("Score: " + score, 40, 20);
         }
-    })
-    document.addEventListener("keyup",e=>{
-        if(e.key == "ArrowRight"){
-            rightflag = false;
-        }else if(e.key == "ArrowLeft"){
-            leftflag = false;
-        }
-    })
-
-    function drawScore() {
-        ctx.font = "16px Arial";
-        ctx.fillStyle = "#0095DD";
-        ctx.fillText("Score: " + score, 8, 20);
-    }
-
-    function meet(){
-        for (let i = 0; i < brickColumn; i++) {
-            for (let j = 0; j < brickRow; j++) {
-                let k = bricks[i][j];
-                if (k.status == 1) {
-                    if (x > k.x && x < k.x + brickWidth && y > k.y && y < k.y + brickHeight) {
-                        dy = -dy;
-                        k.status = 0;
-                        score++;
-                        if (score == brickRow * brickColumn) {
-                            alert("YOU WIN, CONGRATULATIONS!");
+    
+        function meet() {
+            for (let i = 0; i < brickColumn; i++) {
+                for (let j = 0; j < brickRow; j++) {
+                    let k = bricks[i][j];
+                    if (k.status === 1) {
+                        if (x > k.x && x < k.x + brickWidth && y > k.y && y < k.y + brickHeight) {
+                            dy = -dy;
+                            k.status = 0;
+                            score++;
+                            if (score === brickRow * brickColumn) {
+                                alert("YOU WIN, CONGRATULATIONS!");
+                                clearInterval(gameInterval);  
+                                setTimeout(() => location.reload(), 1000);  
+                            }
                         }
                     }
                 }
             }
         }
-    }
-    function ball(){
-        ctx.beginPath();
-        ctx.arc(x, y, radius, 0, Math.PI*2, false);
-        ctx.fillStyle = "green";
-        ctx.fill();
-        ctx.closePath();
-    }
-
-    function bar(){
-        ctx.beginPath();
-        ctx.rect(barX, canvas.height-barHeight, barWidth, barHeight);
-        ctx.fillStyle = "#FF0000";
-        ctx.fill();
-        ctx.closePath();
-    }
-
-    let bricks = [];
+    
+        function ball() {
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2, false);
+            ctx.fillStyle = "green";
+            ctx.fill();
+            ctx.closePath();
+        }
+    
+        function bar() {
+            ctx.beginPath();
+            ctx.rect(barX, canvas.height - barHeight, barWidth, barHeight);
+            ctx.fillStyle = "#FF0000";
+            ctx.fill();
+            ctx.closePath();
+        }
+    
+        let bricks = [];
         for (let i = 0; i < brickColumn; i++) {
             bricks[i] = [];
             for (let j = 0; j < brickRow; j++) {
                 bricks[i][j] = { x: 0, y: 0, status: 1 };
             }
         }
-
+    
         function drawBricks() {
             for (let i = 0; i < brickColumn; i++) {
                 for (let j = 0; j < brickRow; j++) {
@@ -159,40 +162,69 @@ canvas {
                 }
             }
         }
-
-    function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ball();
-        bar();
-        drawBricks();
-        meet();
-        drawScore();
-        if (y + dy > canvas.height - radius) {
-        if (x > barX && x < barX + barWidth) {
-            dy = -dy; 
-        } else {
-            alert("Game Over");
-            clearInterval(gameInterval);  
-            return;
+    
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ball();
+            bar();
+            drawBricks();
+            meet();
+            drawScore();
+    
+            if (y + dy > canvas.height - radius) {
+                if (x > barX && x < barX + barWidth) {
+                    dy = -dy;
+                } else {
+                    alert("Game Over");
+                    clearInterval(gameInterval);
+                    setTimeout(() => location.reload(), 1000);
+                    return;
+                }
+            }
+    
+            if (x + dx > canvas.width - radius || x + dx < radius) {
+                dx = -dx;
+            }
+            if (y + dy < radius) {
+                dy = -dy;
+            }
+            if (rightflag && barX < canvas.width - barWidth) {
+                barX += 4;
+            } else if (leftflag && barX > 0) {
+                barX -= 4;
+            }
+    
+            x += dx;
+            y += dy;
         }
-    }
-        if (x + dx > canvas.width - radius || x + dx < radius) {
-            dx = -dx;
+    
+        function drawCountdown() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+            ctx.fillStyle = "rgba(0, 0, 0, 0.5)";  
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+            ctx.font = "50px Arial";
+            ctx.fillStyle = "white";
+            ctx.textAlign = "center";
+            ctx.fillText(countdown, canvas.width / 2, canvas.height / 2);
         }
-        if (y + dy < radius) {
-            dy = -dy;
+    
+        function startCountdown() {
+            drawCountdown();
+            let countdownInterval = setInterval(() => {
+                countdown--;
+                if (countdown === 0) {
+                    clearInterval(countdownInterval);
+                    gameInterval = setInterval(draw, 10);  
+                } else {
+                    drawCountdown();
+                }
+            }, 1000);
         }
-        if (rightflag && barX < canvas.width - barWidth) {
-            barX += 4;
-        } else if (leftflag && barX > 0) {
-            barX -= 4;
-        }
-
-        x += dx;
-        y += dy;
-    }
-
-    setInterval(draw, 10);
-</script>
+    
+        startCountdown();  
+    </script>
+    
 </body>
 </html>
